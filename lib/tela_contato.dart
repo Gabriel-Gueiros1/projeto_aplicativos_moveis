@@ -16,33 +16,48 @@ class TelaContatoState extends State<TelaContato> {
         title: Text("Contato"),
         backgroundColor: Colors.green,
         foregroundColor: Colors.white,
-        centerTitle: false,
       ),
       body: SingleChildScrollView(
-        child: Container(
-          padding: EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Row(
-                children: <Widget>[
-                  Icon(Icons.email, color: Colors.green, size: 60),
-                  Padding(
-                    padding: EdgeInsets.only(left: 10),
-                    child: Text(
-                      "Contato",
-                      style: TextStyle(
-                          fontSize: 20
-                      ),
-                    ),
-                  )
-                ],
-              ),
-              
-              // Implementar os dados de contato
-              
-            ],
-          ),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Row(
+              children: const <Widget>[
+                Icon(Icons.email, color: Colors.green, size: 60),
+                SizedBox(width: 10),
+                Text(
+                  "Fale Conosco",
+                  style: TextStyle(fontSize: 20),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: const [
+                Icon(Icons.phone, color: Colors.green),
+                SizedBox(width: 8),
+                Text("Telefone: (11) 99999-9999", style: TextStyle(fontSize: 16)),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: const [
+                Icon(Icons.email, color: Colors.green),
+                SizedBox(width: 8),
+                Text("Email: contato@minhaempresa.com", style: TextStyle(fontSize: 16)),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: const [
+                Icon(Icons.location_on, color: Colors.green),
+                SizedBox(width: 8),
+                Text("Endereço: Rua Exemplo, 123 – São Paulo, SP",
+                    style: TextStyle(fontSize: 16)),
+              ],
+            ),
+          ],
         ),
       ),
     );

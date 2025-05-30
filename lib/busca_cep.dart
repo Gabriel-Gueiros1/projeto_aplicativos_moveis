@@ -12,85 +12,87 @@ class BuscaCep extends StatefulWidget {
 class BuscaCepState extends State<BuscaCep> {
 
   TextEditingController _controllerCep = TextEditingController();
-  String _resultado = "Resultado";
+  String _resultado = "";
   
-  _recuperarCep() async {
+   @override
+  void dispose() {
+    _controllerCep.dispose();
+    super.dispose();
+  }
 
-    String cepDigitado = _controllerCep.text;
-
-    if (cepDigitado.isEmpty || cepDigitado.length < 8 || cepDigitado.length > 8) {
+  Future<void> _buscarCep() async {
+    String cep = _controllerCep.text.replaceAll(RegExp(r'[^0-9]'), '');
+    if (cep.isEmpty) {
       setState(() {
-        _resultado = "CEP inválido";
+        _resultado = "Informe um CEP válido!";
       });
       return;
     }
 
-    // https://viacep.com.br/ws/55024740/json/
-    var url = Uri.https("viacep.com.br", "/ws/$cepDigitado/json/");
-    http.Response response = await http.get(url);
-    Map<String, dynamic> retorno = json.decode(response.body);
+    final uri = Uri.https('viacep.com.br', '/ws/$cep/json/');
 
-    String logradouro = retorno["logradouro"];
-    String complemento = retorno["complemento"];
-    String bairro = retorno["bairro"];
-    String localidade = retorno["localidade"];
-    String uf = retorno["uf"];
-    String regiao = retorno["regiao"];
-    String ddd = retorno["ddd"];
-
-    setState(() {
-      _resultado = '''
-        Rua: $logradouro $complemento
-        Bairro: $bairro
-        Cidade: $localidade
-        Estado: $uf
-        Região: $regiao
-        DDD: $ddd
-      ''';
-    });
-
+    try {
+      final response = await http.get(uri);
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> dados = json.decode(response.body);
+        if (dados.containsKey('erro')) {
+          setState(() {
+            _resultado = "CEP não encontrado!";
+          });
+        } else {
+          final logradouro = dados['logradouro'] ?? '';
+          final complemento = dados['complemento'] ?? '';
+          final bairro = dados['bairro'] ?? '';
+          final localidade = dados['localidade'] ?? '';
+          final uf = dados['uf'] ?? '';
+          setState(() {
+            _resultado = '$logradouro $complemento, $bairro, $localidade - $uf';
+          });
+        }
+      } else {
+        setState(() {
+          _resultado = 'Erro ao buscar CEP: ${response.statusCode}';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _resultado = 'Falha na requisição: $e';
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text("Busca de CEP"),
-        backgroundColor: Colors.indigo,
-        foregroundColor: Colors.white,
-        centerTitle: false,
+        title: const Text('Buscar CEP'),
+        backgroundColor: Colors.blue,
       ),
-      body: Container(
-        padding: EdgeInsets.all(40),
+      body: Padding(
+        padding: const EdgeInsets.all(32.0),
         child: Column(
-          children: <Widget>[
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[  
             TextField(
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                labelText: "Digite o CEP ex.: 55024-740"
-              ),
-              style: TextStyle(
-                fontSize: 20
-              ),
               controller: _controllerCep,
-            ),
-            Padding(
-              padding: EdgeInsets.only(top: 20, bottom: 20),
-              child: ElevatedButton(
-                onPressed: _recuperarCep,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.indigo,
-                  foregroundColor: Colors.white,
-                ),
-                child: Text("Buscar CEP"),
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: 'CEP (somente números)',
+                border: OutlineInputBorder(),
               ),
             ),
-            Text( _resultado,
-              style: TextStyle(
-                fontSize: 20
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _buscarCep,
+              child: const Text('Buscar CEP'),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              _resultado,
+              style: const TextStyle(
+                fontSize: 20,
               ),
-            )
+            ),
           ],
         ),
       ),

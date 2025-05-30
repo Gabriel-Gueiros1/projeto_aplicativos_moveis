@@ -4,32 +4,22 @@ import 'dart:convert';
 
 class Bitcoin extends StatefulWidget {
   const Bitcoin({super.key});
-
   @override
   BitcoinState createState() => BitcoinState();
 }
 
 class BitcoinState extends State<Bitcoin> {
-
   String _preco = "0";
 
   void _recuperarPreco() async {
-
-    // "https://blockchain.info/ticker";
-    var url = Uri.https("blockchain.info", "ticker");
-    // Implementar o método de requisição
-    http.Response response = await http.get(url);
-    // Implementar converter o retorno para JSON
-    Map<String, dynamic> retorno = json.decode( response.body );
+    final url = Uri.https("blockchain.info", "ticker");
+    final response = await http.get(url);
+    final Map<String, dynamic> retorno = json.decode(response.body);
 
     setState(() {
-      // Implementar a lógica para atualizar o preço
-      // do Bitcoin em Reais
-      // O preço do Bitcoin em Reais está na chave "BRL"
-      // e o valor do preço está na chave "buy"
-      _preco = "Implementar o preço do Bitcoin em Reais";
+      
+      _preco = retorno["BRL"]["buy"].toString();
     });
-
   }
 
   @override
@@ -37,34 +27,39 @@ class BitcoinState extends State<Bitcoin> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text("Título tela"),
+        title: const Text("Valor do Bitcoin"),
         backgroundColor: Colors.orange,
         foregroundColor: Colors.white,
-        centerTitle: false,
       ),
       body: Container(
-        padding: EdgeInsets.all(32),
+        padding: const EdgeInsets.all(32),
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Image.asset("images/bitcoin.png", height: 70),
-              Padding(
-                padding: EdgeInsets.only(top: 30, bottom: 30),
-                child: Text("Valor do Bitcoin",
-                  style: TextStyle(
-                    fontSize: 35
-                  ),
+              const SizedBox(height: 30),
+              const Text(
+                "Valor do Bitcoin",
+                style: TextStyle(fontSize: 35),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                "R\$ $_preco",
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
+              const SizedBox(height: 30),
               ElevatedButton(
                 onPressed: _recuperarPreco,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.orange,
                   foregroundColor: Colors.white,
                 ),
-                child: Text("Atualizar"),
-              )
+                child: const Text("Atualizar"),
+              ),
             ],
           ),
         ),
